@@ -1,36 +1,27 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
-#
-# Examples:
-#
-#   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
-#   Mayor.create(name: 'Emanuel', city: cities.first)
+today = Date.today
+two_days_ago = Date.today - 2.days
+three_days_ago = Date.today - 3.days
+dates = [today, two_days_ago, three_days_ago]
 
 User.destroy_all
 TodoList.destroy_all
-TodoItem.destroy_all
-Profile.destroy_all
 
-User.create! [
-	{username: "Fiorina", password_digest: "qwer1234"} ,
-	{username: "Trump", password_digest: "qwer1234" }, 
-	{username: "Carson", password_digest: "qwer1234"}, 
-	{username: "Clinton", password_digest: "qwer1234"}
-]
-profiles = [
- 	{first_name: "Carly", last_name: "Fiorina", birth_year: "1954", gender: "female"},
-	{first_name: "Donald", last_name: "Trump", birth_year: "1946", gender: "male"},
-	{first_name: "Ben", last_name: "Carson", birth_year: "1951", gender: "male"},
- 	{first_name: "Hillary", last_name: "Clinton", birth_year: "1947", gender: "female"}
+100.times { |index| TodoList.create! list_name: "List  #{index}", list_due_date: dates.sample }
+
+TodoList.all.each do |list|
+  list.todo_items.create! [
+    { title: "Task 1", due_date: dates.sample, description: "very important task TEST", completed: false },
+    { title: "Task 2", due_date: dates.sample, description: "do something else TEST", completed: true},
+    { title: "Task 3", due_date: dates.sample, description: "learn Action Pack TEST", completed: true}
+  ]
+end
+
+users = User.create! [
+  { username: "jim", password: "abc123" },
+  { username: "rich", password: "123abc" }
 ]
 
-user_num = 1
-due_date = Date.today + 1.year
-User.all.to_a.each do |user|
-	user.create_profile(profiles[user_num -1])
-	1.times do TodoList.create(list_name: "list #{user_num}", list_due_date: due_date, user: user)
-	end
-	5.times do |i| TodoItem.create(due_date: due_date, title: "item #{i + 5*(user_num-1)}", description: "text", todo_list: TodoList.find_by(user: user))
-	end
-	user_num += 1
+TodoList.all.each do |list|
+  list.user = users.sample
+  list.save!
 end
